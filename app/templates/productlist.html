@@ -1,0 +1,102 @@
+{% extends 'index.html' %}  
+<!-- sivu renderöidään block content -osioon -->
+
+{% block content %}
+
+<br />
+<div id="add-div"></div>
+<br />
+
+<h1 style="color: orangered">Products</h1>
+
+<div class="btn-group" role="group">
+    <button id="add-btn" class="btn btn-success btn-sm" onclick="showaddform()">Add new product</button>
+    <!-- <a class="btn btn-warning btn-sm" href="/suppliers">Manage suppliers</a>
+    <a class="btn btn-primary btn-sm" href="/products">Manage products</a>
+    <a class="btn btn-danger btn-sm" href="/logout">Logout</a> -->
+</div>
+
+<div class="card" style="width: 20rem;">
+    <div class="card-body">
+        <form method="post" action="/search-products/">
+
+            {%csrf_token %}
+            <input class="card-text" class="card-text" type="text" placeholder="search" name="search">
+
+            <input type="submit" value="Search" class="btn btn-success btn-sm" name="">
+        </form>
+    </div>
+</div>
+
+<!-- "for-loop", palvelimen päässä renderöity-->
+{% for p in products %}
+<div class="card" style="width: 50rem;">
+    <div class="card-body">
+        <h3 class="card-title">{{p.productname}} </h3>
+        <h5 class="card-text">Supplier: {{p.supplier.companyname}}</h5>
+        <p class="card-text">packagesize: {{p.packagesize}} | unitprice: {{p.unitprice}}</p>
+        <p class="card-text" style="color: green;">Units in stock: {{p.unitsinstock}}</p>
+        
+        <a href="/edit-product-get/{{p.id}}/" class="btn btn-primary">Edit</a>
+
+        <a href="/confirm-delete-product/{{p.id}}/" class="btn btn-danger">Delete</a>
+        <!-- OIKEA <a href="/delete-product/{{p.id}}/" class="btn btn-danger">Delete</a> -->
+        <!-- DELETE-EHTO, EI FUTAA <a class="btn btn-danger" onclick="deleteProduct(p.productname)">Delete</a> -->
+        <!-- <a href="#" class="btn btn-secondary">{{p.companyname}}´s all Products</a> -->
+        <a href="/products-by-supplier/{{p.supplier.id}}/" class="btn btn-secondary">{{p.supplier.companyname}}´s all Products</a>
+    </div>
+</div>
+
+{% empty %}
+
+<p>No Products in database.</p>
+
+{%endfor%}
+
+<!-- <input class="card-text" type="text" placeholder="suppliers name" name="companyname"> TALTEEN RIVILTÄ 58-->
+
+<script>
+
+    // javascriptiä delete-ehdon tekemiseksi
+    // function deleteProduct() {
+    //     let vahvistus = window.confirm("Haluatko todella poistaa tuotteen?")
+    // }
+
+    let y = `
+    <h2 style="color: darkorange;">Please fill in form</h2>
+    
+    <div class="card" style="width: 20rem;">
+        <div class="card-body">
+            <form method="post" action="/add-product/">
+
+                {%csrf_token %}
+                <input class="card-text" class="card-text" type="text" placeholder="product name" name="productname">
+                <input class="card-text" type="text" placeholder="package size" name="packagesize">
+                <input class="card-text" type="text" placeholder="unitprice" name="unitprice">
+                <input class="card-text" type="text" placeholder="units in stock or 0" name="unitsinstock">
+                <br />
+                <label for="supplier">Supplier</label>
+                <select id="supplier" name="supplier">
+                {% for s in suppliers %}
+                  <option value="{{s.id}}">{{s.companyname}}</option>
+                  {% endfor %}
+                </select>
+
+                <br/>
+                <input type="submit" value="Confirm" class="btn btn-success btn-sm" name="">
+                <input type="submit" id="hide-btn" class="btn btn-secondary btn-sm" onclick="hideaddform()" value="Cancel" name="">
+            </form>
+        </div>
+    </div>`
+
+    function showaddform() {
+        document.getElementById("add-div").innerHTML = y
+    }
+
+    function hideaddform() {
+        document.getElementById("add-div").innerHTML = ""
+    }
+
+</script>
+
+{% endblock %}
